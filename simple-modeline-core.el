@@ -26,22 +26,6 @@
   :prefix "simple-modeline-"
   :group 'mode-line)
 
-(defcustom simple-modeline-show-eol-style nil
-  "If t, the EOL style of the current buffer will be displayed in the mode-line."
-  :type 'boolean)
-
-(defcustom simple-modeline-show-encoding-information nil
-  "If t, the encoding format of the current buffer will be displayed in the mode-line."
-  :type 'boolean)
-
-(defcustom simple-modeline-show-cursor-point nil
-  "If t, the value of `point' will be displayed next to the cursor position in the mode-line."
-  :type 'boolean)
-
-(defcustom simple-modeline-show-percent-position nil
-  "If t, the percent position will be displayed in the mode-line."
-  :type 'boolean)
-
 (defvar simple-modeline--default-mode-line mode-line-format
   "The former value of `mode-line-format'.")
 
@@ -76,6 +60,28 @@
 ;;
 ;; Helpers
 ;;
+
+(defmacro simple-modeline-create-segment (name doc &rest body)
+  "Create a new segment function for `simple-modeline-mode'"
+  (let ((segment (intern (format "simple-modeline-segment-%s" name)))
+        (toggle (intern (format "simple-modeline-toggle-%s" name)))
+        (show (intern (format "simple-modeline-show-%s" name))))
+    `(progn
+       (defcustom ,show t
+         ,(format "Visibility of the %s segment of the mode-line." name)
+         :group 'simple-modeline
+         :type 'boolean)
+       (defun ,toggle ()
+         ,(format "Toggle visibility of %s segment of the mode-line." name)
+         (interactive)
+         (customize-save-variable (quote ,show) (not ,show)))
+       (defalias
+         (quote ,segment)
+         (lambda ()
+           (when ,show
+             ,@body))
+         ,doc))
+    ))
 
 (defun simple-modeline--format (left-segments right-segments)
   "Return a string of `window-width' length containing LEFT-SEGMENTS and RIGHT-SEGMENTS, aligned respectively."
