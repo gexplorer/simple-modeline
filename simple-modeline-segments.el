@@ -63,7 +63,24 @@ corresponding to the mode line clicked."
 (simple-modeline-create-segment
  "position"
  "Displays the current cursor position in the mode-line."
- " %l:%c")
+ `((line-number-mode
+    ((column-number-mode
+      (column-number-indicator-zero-based
+       (8 " %l:%c")
+       (8 " %l:%C"))
+      (5 " L%l")))
+    ((column-number-mode
+      (column-number-indicator-zero-based
+       (5 " C%c")
+       (5 " C%C")))))
+   ,(if (region-active-p)
+        (propertize (format "+%s"
+                            (apply '+ (mapcar
+                                       (lambda (pos)
+                                         (- (cdr pos)
+                                            (car pos)))
+                                       (region-bounds))))
+                    'font-lock-face 'font-lock-variable-name-face))))
 
 (simple-modeline-create-segment
  "vc"
