@@ -1,4 +1,4 @@
-;;; simple-modeline-segments.el --- The segments for simple-modeline
+;;; simple-modeline-segments.el --- The segments for simple-modeline -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2019  Eder Elorriaga
 
@@ -22,6 +22,7 @@
 ;;; Code:
 
 (require 'simple-modeline-core)
+(require 'subr-x)
 
 (defun simple-modeline-make-mouse-map (mouse function)
   "Return a keymap with single entry for mouse key MOUSE on the mode line.
@@ -75,7 +76,7 @@ corresponding to the mode line clicked."
        (5 " C%C")))))
    ,(if (region-active-p)
         (propertize (format "+%s"
-                            (apply '+ (mapcar
+                            (apply #'+ (mapcar
                                        (lambda (pos)
                                          (- (cdr pos)
                                             (car pos)))
@@ -100,7 +101,7 @@ corresponding to the mode line clicked."
       (lambda (e)
 	(interactive "e")
 	(with-selected-window (posn-window (event-start e))
-	  (call-interactively 'set-buffer-file-coding-system))))
+	  (call-interactively #'set-buffer-file-coding-system))))
     (purecopy map))
   "Local keymap for the coding-system part of the simple-modeline.")
 

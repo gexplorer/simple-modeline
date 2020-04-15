@@ -1,4 +1,4 @@
-;;; simple-modeline-core.el --- The core libraries for simple-modeline
+;;; simple-modeline-core.el --- The core libraries for simple-modeline -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2019  Eder Elorriaga
 
@@ -62,7 +62,7 @@
 ;;
 
 (defmacro simple-modeline-create-segment (name doc &rest body)
-  "Create a new segment function for `simple-modeline-mode'"
+  "Create a new segment with NAME, DOC and BODY function for `simple-modeline-mode'."
   (let ((segment (intern (format "simple-modeline-segment-%s" name)))
         (toggle (intern (format "simple-modeline-toggle-%s" name)))
         (show (intern (format "simple-modeline-show-%s" name))))
@@ -80,8 +80,7 @@
          (lambda ()
            (when ,show
              ,@body))
-         ,doc))
-    ))
+         ,doc))))
 
 (defun simple-modeline--format (left-segments right-segments)
   "Return a string of `window-width' length containing LEFT-SEGMENTS and RIGHT-SEGMENTS, aligned respectively."
