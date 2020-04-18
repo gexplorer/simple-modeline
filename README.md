@@ -1,5 +1,7 @@
 # simple-modeline
 
+[![MELPA](https://melpa.org/packages/simple-modeline-badge.svg)](https://melpa.org/#/simple-modeline)
+
 A simple mode-line configuration for Emacs.
 
 # About
