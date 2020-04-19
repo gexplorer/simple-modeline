@@ -158,6 +158,24 @@ corresponding to the mode line clicked."
      (concat " " misc-info))))
 
 (simple-modeline-create-segment
+ "input-method"
+ "Displays the input-method of the buffer in the mode-line."
+ `(""
+   (current-input-method
+    (:propertize (" " current-input-method-title)
+                 help-echo (format
+                            "Current input method: %s\nmouse-1: Describe current input method"
+                            current-input-method)
+                 local-map ,(purecopy
+                             (simple-modeline-make-mouse-map
+                              'mouse-1
+                              (lambda (e)
+                                (interactive "e")
+                                (with-selected-window (posn-window (event-start e))
+                                  (describe-current-input-method)))))
+                 mouse-face 'mode-line-highlight))))
+
+(simple-modeline-create-segment
  "minor-modes"
  "Displays the current minor modes in the mode-line."
  (replace-regexp-in-string

@@ -18,6 +18,7 @@ A simple mode-line configuration for Emacs.
   - EOL
   - Minor modes list
   - Process info
+  - Input method
   - Major mode
 * Simple creation of new segments with a macro
 
