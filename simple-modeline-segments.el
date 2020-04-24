@@ -196,7 +196,7 @@ corresponding to the mode line clicked."
   (concat " "
           (or (and (boundp 'delighted-modes)
                    (cadr (assq major-mode delighted-modes)))
-              mode-name))
+              (format-mode-line mode-name)))
   'face 'bold))
 
 (provide 'simple-modeline-segments)
