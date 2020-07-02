@@ -24,6 +24,10 @@
 (require 'simple-modeline-core)
 (require 'subr-x)
 
+(defvar minions-direct)
+(defvar minions-mode-line-lighter)
+(defvar minions-mode-line-minor-modes-map)
+
 (defun simple-modeline-make-mouse-map (mouse function)
   "Return a keymap with single entry for mouse key MOUSE on the mode line.
 MOUSE is defined to run function FUNCTION with no args in the buffer
@@ -178,10 +182,23 @@ corresponding to the mode line clicked."
 (simple-modeline-create-segment
  "minor-modes"
  "Displays the current minor modes in the mode-line."
- (replace-regexp-in-string
-   "%" "%%%%"
-   (format-mode-line minor-mode-alist)
-   t t))
+ (let ((direct-alist))
+   (dolist (cand-mode minor-mode-alist)
+     (if (member (car cand-mode) minions-direct)
+       (setq direct-alist (cons cand-mode direct-alist))))
+   (replace-regexp-in-string
+     "%" "%%%%"
+     (format-mode-line direct-alist)
+     t t)))
+
+(simple-modeline-create-segment
+ "minions-mode"
+ "Display minions mode in the mode-line."
+ (if (and (boundp 'minions-mode))
+   (propertize (format "%s" minions-mode-line-lighter)
+     'mouse-face 'mode-line-highlight
+     'help-echo "Minions mouse-1: Display minions modes menu"
+     'local-map minions-mode-line-minor-modes-map)))
 
 (simple-modeline-create-segment
  "process"

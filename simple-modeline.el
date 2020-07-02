@@ -49,7 +49,8 @@
       '(simple-modeline-segment-modified
         simple-modeline-segment-buffer-name
         simple-modeline-segment-position)
-      '(simple-modeline-segment-minor-modes
+      '(simple-modeline-segment-minions-mode
+        simple-modeline-segment-minor-modes
         simple-modeline-segment-input-method
         simple-modeline-segment-eol
         simple-modeline-segment-encoding
