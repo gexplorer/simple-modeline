@@ -9,6 +9,7 @@ A simple mode-line configuration for Emacs.
 * Simple design
 * Lightweight
 * Split layout with left and right align segments
+* Customization option for modeline segments
 * Several predefined segments:
   - Modified/readonly indicator
   - Buffer name
@@ -20,7 +21,6 @@ A simple mode-line configuration for Emacs.
   - Process info
   - Input method
   - Major mode
-* Simple creation of new segments with a macro
 
 # Configuration
 

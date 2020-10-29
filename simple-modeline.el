@@ -3,7 +3,7 @@
 ;; Author: Eder Elorriaga <gexplorer8@gmail.com>
 ;; URL: https://github.com/gexplorer/simple-modeline
 ;; Keywords: mode-line faces
-;; Version: 1.1
+;; Version: 1.2
 ;; Package-Requires: ((emacs "26.1"))
 
 ;; Copyright (C) 2019  Eder Elorriaga
@@ -46,17 +46,8 @@
 (defvar simple-modeline--mode-line
   '((:eval
      (simple-modeline--format
-      '(simple-modeline-segment-modified
-        simple-modeline-segment-buffer-name
-        simple-modeline-segment-position)
-      '(simple-modeline-segment-minor-modes
-        simple-modeline-segment-input-method
-        simple-modeline-segment-eol
-        simple-modeline-segment-encoding
-        simple-modeline-segment-vc
-        simple-modeline-segment-misc-info
-        simple-modeline-segment-process
-        simple-modeline-segment-major-mode)))))
+      (car simple-modeline-segments)
+      (cadr simple-modeline-segments)))))
 
 ;;;###autoload
 (define-minor-mode simple-modeline-mode
