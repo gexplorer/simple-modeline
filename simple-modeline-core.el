@@ -56,15 +56,15 @@
 
 (defface simple-modeline-unimportant
   '((t (:inherit (shadow))))
-  "Face used for less important mode-line elements.")
+  "Face for less important mode-line elements.")
 
 (defface simple-modeline-status-modified
   '((t (:inherit (font-lock-variable-name-face))))
-  "Face used for the 'modified' indicator symbol in the mode-line.")
+  "Face for the 'modified' indicator symbol in the mode-line.")
 
 (defface simple-modeline-status-info
   '((t (:inherit (font-lock-string-face))))
-  "Face used for generic status indicators in the mode-line.")
+  "Face for generic status indicators in the mode-line.")
 
 (defface simple-modeline-status-success
   '((t (:inherit (success))))
@@ -76,7 +76,7 @@
 
 (defface simple-modeline-status-error
   '((t (:inherit (error))))
-  "Face for error stauts indicators in the mode-line.")
+  "Face for error status indicators in the mode-line.")
 
 ;;
 ;; Helpers
