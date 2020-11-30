@@ -54,6 +54,10 @@
 ;; Faces
 ;;
 
+(defface simple-modeline-space
+  '((t))
+  "Face for space used to alight the right segments in the mode-line.")
+
 (defface simple-modeline-unimportant
   '((t (:inherit (shadow))))
   "Face for less important mode-line elements.")
@@ -89,7 +93,9 @@
          (reserve (length right)))
     (concat
      left
-     (propertize " " 'display `((space :align-to (- right ,reserve))))
+     (propertize " "
+                 'display `((space :align-to (- right ,reserve)))
+                 'face '(:inherit simple-modeline-space))
      right)))
 
 (defun simple-modeline--format-segments (segments)
