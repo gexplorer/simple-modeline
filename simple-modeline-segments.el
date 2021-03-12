@@ -1,6 +1,6 @@
 ;;; simple-modeline-segments.el --- The segments for simple-modeline -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2019  Eder Elorriaga
+;; Copyright (C) 2019-2021  Eder Elorriaga
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -186,6 +186,16 @@ corresponding to the mode line clicked."
                    (cadr (assq major-mode delighted-modes)))
               (format-mode-line mode-name)))
   'face 'bold))
+
+(defcustom simple-modeline-word-count-modes '(markdown-mode gfm-mode org-mode)
+  "Major modes in which to display word count continuously."
+  :type '(repeat (symbol :tag "Major-Mode") )
+  :group 'simple-modeline)
+
+(defun simple-modeline-segment-word-count ()
+  "Display the buffer word count in the mode-line when in a major mode in `simple-modeline-word-count-modes'."
+  (if (member major-mode simple-modeline-word-count-modes)
+      (format " %dW" (count-words (point-min) (point-max)))))
 
 (provide 'simple-modeline-segments)
 ;;; simple-modeline-segments.el ends here

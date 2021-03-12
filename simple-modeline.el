@@ -1,11 +1,11 @@
 ;;; simple-modeline.el --- A simple mode-line configuration for Emacs -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2019  Eder Elorriaga
+;; Copyright (C) 2019-2021  Eder Elorriaga
 
 ;; Author: Eder Elorriaga <gexplorer8@gmail.com>
 ;; URL: https://github.com/gexplorer/simple-modeline
 ;; Keywords: mode-line faces
-;; Version: 1.3
+;; Version: 1.4
 ;; Package-Requires: ((emacs "26.1"))
 
 ;; This program is free software; you can redistribute it and/or modify
