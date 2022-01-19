@@ -197,5 +197,11 @@ corresponding to the mode line clicked."
   (if (member major-mode simple-modeline-word-count-modes)
       (format " %dW" (count-words (point-min) (point-max)))))
 
+(defun simple-modeline-segment-pdf-page-number ()
+  "Display the page number in the mode-line when in a major mode is `pdf-view-mode'."
+  (when (equal major-mode 'pdf-view-mode)
+    (format "[Pg. %s/%d]" (eval `(pdf-view-current-pagelabel))
+      (pdf-cache-number-of-pages))))
+
 (provide 'simple-modeline-segments)
 ;;; simple-modeline-segments.el ends here
