@@ -106,7 +106,7 @@ corresponding to the mode line clicked."
    ,(propertize
      "%z"
      'help-echo
-     (lambda (window)
+     (lambda (window &rest args)
        (with-current-buffer (window-buffer window)
          (if buffer-file-coding-system
              (format "Buffer coding system (%s): %s\nmouse-1: Describe coding system\nmouse-3: Set coding system"
