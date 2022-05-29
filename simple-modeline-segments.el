@@ -95,6 +95,10 @@ corresponding to the mode line clicked."
               'face 'simple-modeline-buffer-name-face
               'mouse-face 'mode-line-highlight))
 
+(defcustom simple-modeline-show-region-size t
+  "If t, show the size of the region when it is active."
+  :type 'boolean)
+
 (defun simple-modeline-segment-position ()
   "Displays the current cursor position in the mode-line."
   `((line-number-mode
@@ -107,7 +111,7 @@ corresponding to the mode line clicked."
        (column-number-indicator-zero-based
         (5 " C%c")
         (5 " C%C")))))
-    ,(if (region-active-p)
+    ,(if (and simple-modeline-show-region-size (region-active-p))
          (propertize (format "+%s"
                              (apply #'+ (mapcar
                                          (lambda (pos)
