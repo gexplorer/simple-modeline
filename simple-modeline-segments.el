@@ -44,17 +44,17 @@
   :group 'simple-modeline)
 
 (defface simple-modeline-encoding-face
-  '((t (:inherit mode-line)))
+  '((t (:inherit mode-line-active)))
   "Face used for showing encoding style."
   :group 'simple-modeline)
 
 (defface simple-modeline-eol-face
-  '((t (:inherit mode-line)))
+  '((t (:inherit mode-line-active)))
   "Face used for showing EOL style."
   :group 'simple-modeline)
 
 (defface simple-modeline-input-method-face
-  '((t (:inherit mode-line)))
+  '((t (:inherit mode-line-active)))
   "Face used for showing EOL style."
   :group 'simple-modeline)
 
