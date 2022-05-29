@@ -38,6 +38,11 @@
   "Face used for showing the size of the region."
   :group 'simple-modeline)
 
+(defface simple-modeline-narrow-face
+  '((t (:inherit font-lock-variable-name-face)))
+  "Face used for showing when the buffer is narrowed."
+  :group 'simple-modeline)
+
 (defface simple-modeline-project-face
   '((t (:inherit font-lock-constant-face)))
   "Face used for showing the size of the region."
@@ -92,8 +97,12 @@ corresponding to the mode line clicked."
 (defun simple-modeline-segment-buffer-name ()
   "Displays the name of the current buffer in the mode-line."
   (propertize " %b"
-              'face 'simple-modeline-buffer-name-face
-              'mouse-face 'mode-line-highlight))
+              'face 'simple-modeline-buffer-name-face))
+
+(defun simple-modeline-segment-narrow ()
+  "Show a message when buffer is narrowed."
+  (when (buffer-narrowed-p)
+    (propertize " Narrow" 'face 'simple-modeline-narrow-face)))
 
 (defcustom simple-modeline-show-region-size t
   "If t, show the size of the region when it is active."
