@@ -23,6 +23,11 @@
 
 (require 'subr-x)
 
+
+(defface simple-modeline-project-face
+  '((t (:inherit font-lock-constant-face)))
+  "Face used for showing the size of the region."
+  :group 'simple-modeline)
 (defun simple-modeline-make-mouse-map (mouse function)
   "Return a keymap with single entry for mouse key MOUSE on the mode line.
 MOUSE is defined to run function FUNCTION with no args in the buffer
@@ -78,6 +83,67 @@ corresponding to the mode line clicked."
                                             (car pos)))
                                        (region-bounds))))
                     'font-lock-face 'font-lock-variable-name-face))))
+(defun simple-modeline--get-version-string (file)
+  "Get a version string to display for FILE.
+
+This is the normal vc mode-line text with the backend name stripped.
+We keep the text properties."
+  (when-let*
+      ((backend (vc-responsible-backend file))
+       (vc-string (vc-call-backend backend 'mode-line-string file)))
+    
+    (substring vc-string (length (symbol-name backend)) (length vc-string) )))
+
+
+(defun simple-modeline--make-project-map ()
+  "Create a keymap with bindings for either magit or vc.
+
+Assumes we are in a project that's under version control."
+  (if (and (featurep 'magit)
+           (magit-git-repo-p (project-root (project-current))))
+      (let ((map (make-sparse-keymap)))
+        (define-key map [mode-line mouse-1] 'magit-file-dispatch)
+        (define-key map [mode-line mouse-3] 'magit-status)
+        (purecopy map))
+
+    vc-mode-line-map))
+
+
+(defun simple-modeline--make-help-echo (project-root vc-help)
+  "Create a help text including the correct bindings for the mouse map.
+
+Assumes we are in a project with root PROJECT-ROOT. Include the
+help text from vc as given by VC-HELP."
+  (concat "Project: " project-root "\n"
+          vc-help "\n"
+          (if (and (featurep 'magit)
+                   (magit-git-repo-p project-root))
+              "mouse-1: Magit File Dispatch\nmouse-2: Magit Status"
+            "mouse-1: Version Control Menu")))
+
+
+(defun simple-modeline-segment-project ()
+  "Display current project name in modeline, followed by vc info."
+  (when (require 'project)
+    (when-let ((file (if (eq major-mode 'dired-mode)
+                         default-directory
+                         (buffer-file-name)))
+               (proj (project-current))
+               (root (project-root proj))
+               (proj-name (file-name-nondirectory (directory-file-name root)))
+               (trunc-name (truncate-string-to-width proj-name 15 nil nil "..")))
+      (let ((version-string (simple-modeline--get-version-string file))
+            (help-echo "")
+            (local-map nil))
+        (when version-string
+          (setq local-map (simple-modeline--make-project-map))
+          (setq help-echo (get-text-property 0 'help-echo version-string)))
+        
+        `((:propertize ,(concat " " trunc-name version-string)
+                       font-lock-face simple-modeline-project-face
+                       help-echo ,(simple-modeline--make-help-echo root help-echo)
+                       local-map ,local-map))))))
+
 
 (defun simple-modeline-segment-vc ()
  "Displays color-coded version control information in the mode-line."
