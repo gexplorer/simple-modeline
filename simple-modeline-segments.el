@@ -89,7 +89,7 @@ corresponding to the mode line clicked."
 This is the normal vc mode-line text with the backend name stripped.
 We keep the text properties."
   (when-let*
-      ((backend (vc-responsible-backend file))
+      ((backend (ignore-errors (vc-responsible-backend file nil)))
        (vc-string (vc-call-backend backend 'mode-line-string file)))
     
     (substring vc-string (length (symbol-name backend)) (length vc-string) )))
@@ -114,16 +114,24 @@ Assumes we are in a project that's under version control."
 
 Assumes we are in a project with root PROJECT-ROOT. Include the
 help text from vc as given by VC-HELP."
-  (concat "Project: " project-root "\n"
-          vc-help "\n"
-          (if (and (featurep 'magit)
-                   (magit-git-repo-p project-root))
-              "mouse-1: Magit File Dispatch\nmouse-2: Magit Status"
-            "mouse-1: Version Control Menu")))
+  (concat "Project: " project-root
+          (unless (string-empty-p vc-help)
+            (concat "\n" vc-help
+                    (if (and (featurep 'magit)
+                             (magit-git-repo-p project-root))
+                        "\nmouse-1: Magit File Dispatch\nmouse-2: Magit Status"
+                      "\nmouse-1: Version Control Menu")))))
 
 
 (defun simple-modeline-segment-project ()
-  "Display current project name in modeline, followed by vc info."
+  "Display current project name in modeline, followed by vc info.
+
+This is a replacement for the standard `vc-mode' modeline info. Instead of the
+vc backend it shows the name of the root directory of the project.
+
+If magit is detected and we are in a Git repo, it will use magit bindings
+for the mouse map.
+"
   (when (require 'project)
     (when-let ((file (if (eq major-mode 'dired-mode)
                          default-directory
