@@ -94,7 +94,6 @@ We keep the text properties."
     
     (substring vc-string (length (symbol-name backend)) (length vc-string) )))
 
-
 (defun simple-modeline--make-project-map ()
   "Create a keymap with bindings for either magit or vc.
 
@@ -122,7 +121,6 @@ help text from vc as given by VC-HELP."
                         "\nmouse-1: Magit File Dispatch\nmouse-2: Magit Status"
                       "\nmouse-1: Version Control Menu")))))
 
-
 (defun simple-modeline-segment-project ()
   "Display current project name in modeline, followed by vc info.
 
@@ -130,12 +128,11 @@ This is a replacement for the standard `vc-mode' modeline info. Instead of the
 vc backend it shows the name of the root directory of the project.
 
 If magit is detected and we are in a Git repo, it will use magit bindings
-for the mouse map.
-"
+for the mouse map."
   (when (require 'project)
     (when-let ((file (if (eq major-mode 'dired-mode)
                          default-directory
-                         (buffer-file-name)))
+                       (buffer-file-name)))
                (proj (project-current))
                (root (project-root proj))
                (proj-name (file-name-nondirectory (directory-file-name root)))
@@ -148,7 +145,8 @@ for the mouse map.
           (setq help-echo (get-text-property 0 'help-echo version-string)))
         
         `((:propertize ,(concat " " trunc-name version-string)
-                       font-lock-face simple-modeline-project-face
+                       face simple-modeline-project-face
+                       mouse-face 'mode-line-highlight
                        help-echo ,(simple-modeline--make-help-echo root help-echo)
                        local-map ,local-map))))))
 
