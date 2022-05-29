@@ -106,7 +106,8 @@ corresponding to the mode line clicked."
 
 (defcustom simple-modeline-show-region-size t
   "If t, show the size of the region when it is active."
-  :type 'boolean)
+  :type 'boolean
+  :group 'simple-modeline)
 
 (defun simple-modeline-segment-position ()
   "Displays the current cursor position in the mode-line."
