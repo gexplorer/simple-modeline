@@ -268,6 +268,27 @@ for the mouse map."
    'face 'simple-modeline-major-mode-face
    'mouse-face 'mode-line-highlight))
 
+(defun simple-modeline-segment-major-mode-with-recursion ()
+  "Display major mode in the mode-line, including brackets for recursion level."
+  (let ((depth (recursion-depth)))
+    (propertize
+     (concat " "
+             (make-string depth 91)
+             (format-mode-line mode-name)
+             (make-string depth 93))
+     'face 'simple-modeline-major-mode-face
+     'mouse-face 'mode-line-highlight
+     'help-echo (when (> depth 0)
+                  (concat
+                   (format "Recursive edit (level %s)" depth)
+                   "\nmouse-1: Abort recursive edit"
+                   "\nmouse-2: Top level"))
+     'local-map (when (> depth 0)
+                  (let ((map (make-sparse-keymap)))
+                    (define-key map [mode-line mouse-1] 'abort-recursive-edit)
+                    (define-key map [mode-line mouse-3] 'top-level)
+                    (purecopy map))))))
+
 (defcustom simple-modeline-word-count-modes '(markdown-mode gfm-mode org-mode)
   "Major modes in which to display word count continuously."
   :type '(repeat (symbol :tag "Major-Mode") )
