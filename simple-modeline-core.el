@@ -45,7 +45,9 @@
      simple-modeline-segment-misc-info
      simple-modeline-segment-process
      simple-modeline-segment-major-mode))
-  "Simple modeline segments."
+  "Simple modeline segments.
+
+For a very clean look, you can decide to remove `simple-modeline-segment-minor-modes' from this list. In that case it might be a good idea to add `simple-modeline-segment-narrow' and `simple-modeline-segment-major-mode-with-recursion'."
   :type '(list (repeat :tag "Left aligned" function)
                (repeat :tag "Right aligned" function))
   :package-version '(simple-modeline . "1.2"))
