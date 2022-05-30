@@ -82,6 +82,45 @@
   '((t (:inherit (error))))
   "Face for error status indicators in the mode-line.")
 
+(defface simple-modeline-buffer-name-face
+  '((t (:inherit mode-line-buffer-id)))
+  "Face used for the buffer name segment."
+  :group 'simple-modeline)
+
+(defface simple-modeline-major-mode-face
+  '((t (:inherit bold)))
+  "Face used by the major-mode segment."
+  :group 'simple-modeline)
+
+(defface simple-modeline-position-face
+  '((t (:inherit font-lock-variable-name-face)))
+  "Face used for showing the size of the region."
+  :group 'simple-modeline)
+
+(defface simple-modeline-narrow-face
+  '((t (:inherit font-lock-variable-name-face)))
+  "Face used for showing when the buffer is narrowed."
+  :group 'simple-modeline)
+
+(defface simple-modeline-project-face
+  '((t (:inherit font-lock-constant-face)))
+  "Face used for showing the size of the region."
+  :group 'simple-modeline)
+
+(defface simple-modeline-encoding-face
+  '((t (:inherit mode-line-active)))
+  "Face used for showing encoding style."
+  :group 'simple-modeline)
+
+(defface simple-modeline-eol-face
+  '((t (:inherit mode-line-active)))
+  "Face used for showing EOL style."
+  :group 'simple-modeline)
+
+(defface simple-modeline-input-method-face
+  '((t (:inherit mode-line-active)))
+  "Face used for showing EOL style."
+  :group 'simple-modeline)
 ;;
 ;; Helpers
 ;;
