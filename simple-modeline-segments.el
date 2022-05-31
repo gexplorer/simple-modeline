@@ -55,8 +55,8 @@ corresponding to the mode line clicked."
          'mouse-face 'mode-line-highlight))))
 
 (defun simple-modeline-segment-buffer-name ()
- "Displays the name of the current buffer in the mode-line."
- (propertize " %b" 'face 'mode-line-buffer-id))
+  "Displays the name of the current buffer in the mode-line."
+  (propertize " %b" 'face 'simple-modeline-buffer-name-face))
 
 (defun simple-modeline-segment-position ()
  "Displays the current cursor position in the mode-line."
@@ -78,6 +78,7 @@ corresponding to the mode line clicked."
                                             (car pos)))
                                        (region-bounds))))
                     'font-lock-face 'font-lock-variable-name-face))))
+                     'font-lock-face 'simple-modeline-region-face))))
 
 (defun simple-modeline-segment-vc ()
  "Displays color-coded version control information in the mode-line."
@@ -113,8 +114,9 @@ corresponding to the mode line clicked."
                      (if enable-multibyte-characters "multi-byte" "unibyte")
                      (symbol-name buffer-file-coding-system))
            "Buffer coding system: none specified")))
-     'mouse-face 'mode-line-highlight
-     'local-map simple-modeline-segment-encoding-map)))
+      'face 'simple-modeline-encoding-face
+      'mouse-face 'mode-line-highlight
+      'local-map simple-modeline-segment-encoding-map)))
 
 (defun simple-modeline-segment-eol ()
  "Displays the EOL style of the current buffer in the mode-line."
@@ -141,7 +143,8 @@ corresponding to the mode line clicked."
                      (let ((eol (coding-system-eol-type buffer-file-coding-system)))
                        (set-buffer-file-coding-system
                         (cond ((eq eol 0) 'dos) ((eq eol 1) 'mac) (t 'unix))))))))
-    'mouse-face 'mode-line-highlight)))
+     'face 'simple-modeline-eol-face
+     'mouse-face 'mode-line-highlight)))
 
 (defun simple-modeline-segment-misc-info ()
  "Displays the current value of `mode-line-misc-info' in the mode-line."
@@ -164,7 +167,8 @@ corresponding to the mode line clicked."
                                 (interactive "e")
                                 (with-selected-window (posn-window (event-start e))
                                   (describe-current-input-method)))))
-                 mouse-face 'mode-line-highlight))))
+                  mouse-face 'mode-line-highlight
+                  face 'simple-modeline-input-method-face))))
 
 (defun simple-modeline-segment-minor-modes ()
  "Displays the current minor modes in the mode-line."
@@ -185,7 +189,8 @@ corresponding to the mode line clicked."
           (or (and (boundp 'delighted-modes)
                    (cadr (assq major-mode delighted-modes)))
               (format-mode-line mode-name)))
-  'face 'bold))
+   'face 'simple-modeline-major-mode-face
+   'mouse-face 'mode-line-highlight))
 
 (defcustom simple-modeline-word-count-modes '(markdown-mode gfm-mode org-mode)
   "Major modes in which to display word count continuously."
