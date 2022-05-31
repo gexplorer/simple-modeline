@@ -77,8 +77,7 @@ corresponding to the mode line clicked."
                                          (- (cdr pos)
                                             (car pos)))
                                        (region-bounds))))
-                    'font-lock-face 'font-lock-variable-name-face))))
-                     'font-lock-face 'simple-modeline-region-face))))
+                    'font-lock-face 'simple-modeline-region-face))))
 
 (defun simple-modeline-segment-vc ()
  "Displays color-coded version control information in the mode-line."
