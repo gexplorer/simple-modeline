@@ -149,7 +149,6 @@ for the mouse map."
         (when version-string
           (setq local-map (simple-modeline--make-project-map))
           (setq help-echo (get-text-property 0 'help-echo version-string)))
-        
         `((:propertize ,(concat " " trunc-name version-string)
                        face simple-modeline-project-face
                        mouse-face 'mode-line-highlight
@@ -157,7 +156,7 @@ for the mouse map."
                        local-map ,local-map))))))
 
 (defun simple-modeline-segment-vc ()
-  "displays color-coded version control information in the mode-line."
+  "Display color-coded version control information in the mode-line."
   '(vc-mode vc-mode))
 
 (defvar simple-modeline-segment-encoding-map
