@@ -58,6 +58,10 @@ corresponding to the mode line clicked."
  "Displays the name of the current buffer in the mode-line."
  (propertize " %b" 'face 'mode-line-buffer-id))
 
+(defcustom simple-modeline-show-region-size t
+  "If t, show the size of the region when it is active."
+  :type 'boolean)
+
 (defun simple-modeline-segment-position ()
  "Displays the current cursor position in the mode-line."
  `((line-number-mode
@@ -70,14 +74,14 @@ corresponding to the mode line clicked."
       (column-number-indicator-zero-based
        (5 " C%c")
        (5 " C%C")))))
-   ,(if (region-active-p)
+   ,(if (and simple-modeline-show-region-size (region-active-p))
         (propertize (format "+%s"
                             (apply #'+ (mapcar
                                        (lambda (pos)
                                          (- (cdr pos)
                                             (car pos)))
                                        (region-bounds))))
-                    'font-lock-face 'font-lock-variable-name-face))))
+                     'font-lock-face 'simple-modeline-position-face))))
 
 (defun simple-modeline-segment-vc ()
  "Displays color-coded version control information in the mode-line."
