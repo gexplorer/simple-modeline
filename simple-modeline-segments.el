@@ -59,6 +59,18 @@ corresponding to the mode line clicked."
   (propertize " %b"
               'face 'simple-modeline-buffer-name-face))
 
+(defun simple-modeline-segment-buffer-identification ()
+  "Displays current buffer identification in the mode-line.
+
+This is like `simple-modeline-segment-buffer-name', but it
+also shows extra buffer information, like the name of the current
+Info node for an info buffer, or mode information for Calc, etc."
+  (list " "
+        (if (stringp mode-line-buffer-identification)
+            (propertize mode-line-buffer-identification 'face 'simple-modeline-buffer-name-face)
+          mode-line-buffer-identification)))
+
+
 (defun simple-modeline-segment-narrow ()
   "Show a message when buffer is narrowed."
   (when (buffer-narrowed-p)
