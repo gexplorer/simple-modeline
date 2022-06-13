@@ -58,6 +58,17 @@ corresponding to the mode line clicked."
  "Displays the name of the current buffer in the mode-line."
  (propertize " %b" 'face 'mode-line-buffer-id))
 
+(defun simple-modeline-segment-buffer-identification ()
+  "Displays current buffer identification in the mode-line.
+
+This is like `simple-modeline-segment-buffer-name', but it
+also shows extra buffer information, like the name of the current
+Info node for an Info buffer, or mode information for Calc, etc."
+  (list " "
+        (if (stringp mode-line-buffer-identification)
+            (propertize mode-line-buffer-identification 'face 'mode-line-buffer-id)
+          mode-line-buffer-identification)))
+
 (defun simple-modeline-segment-position ()
  "Displays the current cursor position in the mode-line."
  `((line-number-mode
