@@ -55,137 +55,250 @@ corresponding to the mode line clicked."
          'mouse-face 'mode-line-highlight))))
 
 (defun simple-modeline-segment-buffer-name ()
- "Displays the name of the current buffer in the mode-line."
- (propertize " %b" 'face 'mode-line-buffer-id))
+  "Displays the name of the current buffer in the mode-line."
+  (propertize " %b"
+              'face 'simple-modeline-buffer-name-face))
+
+(defun simple-modeline-segment-buffer-identification ()
+  "Displays current buffer identification in the mode-line.
+
+This is like `simple-modeline-segment-buffer-name', but it
+also shows extra buffer information, like the name of the current
+Info node for an info buffer, or mode information for Calc, etc."
+  (list " "
+        (if (stringp mode-line-buffer-identification)
+            (propertize mode-line-buffer-identification 'face 'simple-modeline-buffer-name-face)
+          mode-line-buffer-identification)))
+
+
+(defun simple-modeline-segment-narrow ()
+  "Show a message when buffer is narrowed."
+  (when (buffer-narrowed-p)
+    (propertize " Narrow" 'face 'simple-modeline-narrow-face)))
+
+(defcustom simple-modeline-show-region-size t
+  "If t, show the size of the region when it is active."
+  :type 'boolean
+  :group 'simple-modeline)
 
 (defun simple-modeline-segment-position ()
- "Displays the current cursor position in the mode-line."
- `((line-number-mode
-    ((column-number-mode
-      (column-number-indicator-zero-based
-       (8 " %l:%c")
-       (8 " %l:%C"))
-      (5 " L%l")))
-    ((column-number-mode
-      (column-number-indicator-zero-based
-       (5 " C%c")
-       (5 " C%C")))))
-   ,(if (region-active-p)
-        (propertize (format "+%s"
-                            (apply #'+ (mapcar
-                                       (lambda (pos)
-                                         (- (cdr pos)
-                                            (car pos)))
-                                       (region-bounds))))
-                    'font-lock-face 'font-lock-variable-name-face))))
+  "Displays the current cursor position in the mode-line."
+  `((line-number-mode
+     ((column-number-mode
+       (column-number-indicator-zero-based
+        (8 " %l:%c")
+        (8 " %l:%C"))
+       (5 " L%l")))
+     ((column-number-mode
+       (column-number-indicator-zero-based
+        (5 " C%c")
+        (5 " C%C")))))
+    ,(if (and simple-modeline-show-region-size (region-active-p))
+         (propertize (format "+%s"
+                             (apply #'+ (mapcar
+                                         (lambda (pos)
+                                           (- (cdr pos)
+                                              (car pos)))
+                                         (region-bounds))))
+                     'font-lock-face 'simple-modeline-position-face))))
+
+(defun simple-modeline--get-version-string (file)
+  "Get a version string to display for FILE.
+
+This is the normal vc mode-line text with the backend name stripped.
+We keep the text properties."
+  (when-let*
+      ((backend (ignore-errors (vc-responsible-backend file nil)))
+       (vc-string (vc-call-backend backend 'mode-line-string file)))
+    
+    (substring vc-string (length (symbol-name backend)) (length vc-string) )))
+
+(defun simple-modeline--make-project-map ()
+  "Create a keymap with bindings for either magit or vc.
+
+Assumes we are in a project that's under version control."
+  (if (and (featurep 'magit)
+           (magit-git-repo-p (project-root (project-current))))
+      (let ((map (make-sparse-keymap)))
+        (define-key map [mode-line mouse-1] 'magit-file-dispatch)
+        (define-key map [mode-line mouse-3] 'magit-status)
+        (purecopy map))
+
+    vc-mode-line-map))
+
+(defun simple-modeline--make-help-echo (project-root vc-help)
+  "Create a help text including the correct bindings for the mouse map.
+
+Assumes we are in a project with root PROJECT-ROOT. Include the
+help text from vc as given by VC-HELP."
+  (concat "Project: " project-root
+          (unless (string-empty-p vc-help)
+            (concat "\n" vc-help
+                    (if (and (featurep 'magit)
+                             (magit-git-repo-p project-root))
+                        "\nmouse-1: Magit File Dispatch\nmouse-2: Magit Status"
+                      "\nmouse-1: Version Control Menu")))))
+
+(defun simple-modeline-segment-project ()
+  "Display current project name in modeline, followed by vc info.
+
+This is a replacement for the standard `vc-mode' modeline info. Instead of the
+vc backend it shows the name of the root directory of the project.
+
+If magit is detected and we are in a Git repo, it will use magit bindings
+for the mouse map."
+  (when (require 'project)
+    (when-let ((file (if (eq major-mode 'dired-mode)
+                         default-directory
+                       (buffer-file-name)))
+               (proj (project-current))
+               (root (project-root proj))
+               (proj-name (file-name-nondirectory (directory-file-name root)))
+               (trunc-name (truncate-string-to-width proj-name 15 nil nil "..")))
+      (let ((version-string (simple-modeline--get-version-string file))
+            (help-echo "")
+            (local-map nil))
+        (when version-string
+          (setq local-map (simple-modeline--make-project-map))
+          (setq help-echo (get-text-property 0 'help-echo version-string)))
+        `((:propertize ,(concat " " trunc-name version-string)
+                       face simple-modeline-project-face
+                       mouse-face 'mode-line-highlight
+                       help-echo ,(simple-modeline--make-help-echo root help-echo)
+                       local-map ,local-map))))))
 
 (defun simple-modeline-segment-vc ()
- "Displays color-coded version control information in the mode-line."
- '(vc-mode vc-mode))
+  "Display color-coded version control information in the mode-line."
+  '(vc-mode vc-mode))
 
 (defvar simple-modeline-segment-encoding-map
   (let ((map (make-sparse-keymap)))
     (define-key map [mode-line mouse-1]
       (lambda (e)
-	(interactive "e")
-	(with-selected-window (posn-window (event-start e))
-	  (when (and enable-multibyte-characters
-		     buffer-file-coding-system)
-	    (describe-coding-system buffer-file-coding-system)))))
+	    (interactive "e")
+	    (with-selected-window (posn-window (event-start e))
+	      (when (and enable-multibyte-characters
+		             buffer-file-coding-system)
+	        (describe-coding-system buffer-file-coding-system)))))
     (define-key map [mode-line mouse-3]
       (lambda (e)
-	(interactive "e")
-	(with-selected-window (posn-window (event-start e))
-	  (call-interactively #'set-buffer-file-coding-system))))
+	    (interactive "e")
+	    (with-selected-window (posn-window (event-start e))
+	      (call-interactively #'set-buffer-file-coding-system))))
     (purecopy map))
   "Local keymap for the coding-system part of the simple-modeline.")
 
 (defun simple-modeline-segment-encoding ()
- "Displays the encoding style of the buffer in the mode-line."
- `(" "
-   ,(propertize
-     "%z"
-     'help-echo
-     (lambda (window)
-       (with-current-buffer (window-buffer window)
-         (if buffer-file-coding-system
-             (format "Buffer coding system (%s): %s\nmouse-1: Describe coding system\nmouse-3: Set coding system"
-                     (if enable-multibyte-characters "multi-byte" "unibyte")
-                     (symbol-name buffer-file-coding-system))
-           "Buffer coding system: none specified")))
-     'mouse-face 'mode-line-highlight
-     'local-map simple-modeline-segment-encoding-map)))
+  "Displays the encoding style of the buffer in the mode-line."
+  `(" "
+    ,(propertize
+      "%z"
+      'help-echo
+      (lambda (window &rest args)
+        (with-current-buffer (window-buffer window)
+          (if buffer-file-coding-system
+              (format "Buffer coding system (%s): %s\nmouse-1: Describe coding system\nmouse-3: Set coding system"
+                      (if enable-multibyte-characters "multi-byte" "unibyte")
+                      (symbol-name buffer-file-coding-system))
+            "Buffer coding system: none specified")))
+      'face 'simple-modeline-encoding-face
+      'mouse-face 'mode-line-highlight
+      'local-map simple-modeline-segment-encoding-map)))
 
 (defun simple-modeline-segment-eol ()
- "Displays the EOL style of the current buffer in the mode-line."
- (let* ((eol (coding-system-eol-type buffer-file-coding-system))
-        (mnemonic (pcase eol
-                    ('0 " LF")
-                    ('1 " CRLF")
-                    ('2 " CR")
-                    (_ "")))
-        (desc (pcase eol
-                ('0 "Unix-style")
-                ('1 "DOS-style")
-                ('2 "Mac-style")
-                (_ "Undecided"))))
-   (propertize
-    mnemonic
-    'help-echo (format "End-of-line style: %s\nmouse-1: Cycle" desc)
-    'local-map (purecopy
-                (simple-modeline-make-mouse-map
-                 'mouse-1
-                 (lambda (event)
-                   (interactive "e")
-                   (with-selected-window (posn-window (event-start event))
-                     (let ((eol (coding-system-eol-type buffer-file-coding-system)))
-                       (set-buffer-file-coding-system
-                        (cond ((eq eol 0) 'dos) ((eq eol 1) 'mac) (t 'unix))))))))
-    'mouse-face 'mode-line-highlight)))
+  "Displays the EOL style of the current buffer in the mode-line."
+  (let* ((eol (coding-system-eol-type buffer-file-coding-system))
+         (mnemonic (pcase eol
+                     ('0 " LF")
+                     ('1 " CRLF")
+                     ('2 " CR")
+                     (_ "")))
+         (desc (pcase eol
+                 ('0 "Unix-style")
+                 ('1 "DOS-style")
+                 ('2 "Mac-style")
+                 (_ "Undecided"))))
+    (propertize
+     mnemonic
+     'help-echo (format "End-of-line style: %s\nmouse-1: Cycle" desc)
+     'local-map (purecopy
+                 (simple-modeline-make-mouse-map
+                  'mouse-1
+                  (lambda (event)
+                    (interactive "e")
+                    (with-selected-window (posn-window (event-start event))
+                      (let ((eol (coding-system-eol-type buffer-file-coding-system)))
+                        (set-buffer-file-coding-system
+                         (cond ((eq eol 0) 'dos) ((eq eol 1) 'mac) (t 'unix))))))))
+     'face 'simple-modeline-eol-face
+     'mouse-face 'mode-line-highlight)))
 
 (defun simple-modeline-segment-misc-info ()
- "Displays the current value of `mode-line-misc-info' in the mode-line."
- (let ((misc-info (string-trim (format-mode-line mode-line-misc-info 'simple-modeline-unimportant))))
-   (unless (string= misc-info "")
-     (concat " " misc-info))))
+  "Displays the current value of `mode-line-misc-info' in the mode-line."
+  (let ((misc-info (string-trim (format-mode-line mode-line-misc-info 'simple-modeline-unimportant))))
+    (unless (string= misc-info "")
+      (concat " " misc-info))))
 
 (defun simple-modeline-segment-input-method ()
- "Displays the input-method of the buffer in the mode-line."
- `(""
-   (current-input-method
-    (:propertize (" " current-input-method-title)
-                 help-echo (format
-                            "Current input method: %s\nmouse-1: Describe current input method"
-                            current-input-method)
-                 local-map ,(purecopy
-                             (simple-modeline-make-mouse-map
-                              'mouse-1
-                              (lambda (e)
-                                (interactive "e")
-                                (with-selected-window (posn-window (event-start e))
-                                  (describe-current-input-method)))))
-                 mouse-face 'mode-line-highlight))))
+  "Displays the input-method of the buffer in the mode-line."
+  `(""
+    (current-input-method
+     (:propertize (" " current-input-method-title)
+                  help-echo (format
+                             "Current input method: %s\nmouse-1: Describe current input method"
+                             current-input-method)
+                  local-map ,(purecopy
+                              (simple-modeline-make-mouse-map
+                               'mouse-1
+                               (lambda (e)
+                                 (interactive "e")
+                                 (with-selected-window (posn-window (event-start e))
+                                   (describe-current-input-method)))))
+                  mouse-face 'mode-line-highlight
+                  face 'simple-modeline-input-method-face))))
 
 (defun simple-modeline-segment-minor-modes ()
- "Displays the current minor modes in the mode-line."
- (replace-regexp-in-string
+  "Displays the current minor modes in the mode-line."
+  (replace-regexp-in-string
    "%" "%%%%"
    (format-mode-line minor-mode-alist)
    t t))
 
 (defun simple-modeline-segment-process ()
- "Displays the current value of `mode-line-process' in the mode-line."
- (when mode-line-process
-   (concat " " (string-trim (format-mode-line mode-line-process)))))
+  "Displays the current value of `mode-line-process' in the mode-line."
+  (when mode-line-process
+    (concat " " (string-trim (format-mode-line mode-line-process)))))
 
 (defun simple-modeline-segment-major-mode ()
- "Displays the current major mode in the mode-line."
- (propertize
-  (concat " "
-          (or (and (boundp 'delighted-modes)
-                   (cadr (assq major-mode delighted-modes)))
-              (format-mode-line mode-name)))
-  'face 'bold))
+  "Displays the current major mode in the mode-line."
+  (propertize
+   (concat " "
+           (or (and (boundp 'delighted-modes)
+                    (cadr (assq major-mode delighted-modes)))
+               (format-mode-line mode-name)))
+   'face 'simple-modeline-major-mode-face
+   'mouse-face 'mode-line-highlight))
+
+(defun simple-modeline-segment-major-mode-with-recursion ()
+  "Display major mode in the mode-line, including brackets for recursion level."
+  (let ((depth (recursion-depth)))
+    (propertize
+     (concat " "
+             (make-string depth 91)
+             (format-mode-line mode-name)
+             (make-string depth 93))
+     'face 'simple-modeline-major-mode-face
+     'mouse-face 'mode-line-highlight
+     'help-echo (when (> depth 0)
+                  (concat
+                   (format "Recursive edit (level %s)" depth)
+                   "\nmouse-1: Abort recursive edit"
+                   "\nmouse-2: Top level"))
+     'local-map (when (> depth 0)
+                  (let ((map (make-sparse-keymap)))
+                    (define-key map [mode-line mouse-1] 'abort-recursive-edit)
+                    (define-key map [mode-line mouse-3] 'top-level)
+                    (purecopy map))))))
 
 (defcustom simple-modeline-word-count-modes '(markdown-mode gfm-mode org-mode)
   "Major modes in which to display word count continuously."
